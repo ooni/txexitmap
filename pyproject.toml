@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "txexitmap"
+version = "0.1.0"
+description = ""
+authors = ["Arturo Filastò <arturo@filasto.net>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+twisted = "^22.10.0"
+txtorcon = "^23.5.0"
+treq = "^22.2.0"
+tqdm = "^4.66.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
