@@ -91,7 +91,12 @@ async def main(reactor):
         #)
 
         print("🚂 Starting tor")
-        tor = await txtorcon.launch(reactor, progress_updates=lambda x,y,z: print(f"{x}%: {y} - {z}"))
+        try:
+            tor = await txtorcon.launch(reactor, progress_updates=lambda x,y,z: print(f"{x}%: {y} - {z}"))
+            for event in ['INFO', 'NOTICE', 'WARN', 'ERR']:
+                tor.protocol.add_event_listener(event, tqdm.write)
+        except Exception as exc:
+            print(f"FAILED to start tor {exc}")
         print("🏁 Started Tor version {}".format(tor.version))
 
         exit_list = await get_exit_list(reactor)
