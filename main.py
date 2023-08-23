@@ -39,63 +39,68 @@ async def get_exit_list(reactor):
         })
     return exit_list
 
+async def measure_relay(reactor, tor, tor_state, relay, url_list, csvwriter):
+    exit_fp = relay['fingerprint']
+    ns_info = await tor.protocol.get_info('ns/id/' + exit_fp)
+    md_info = await tor.protocol.get_info('md/id/' + exit_fp)
+
+    first_hop = random.choice(list(tor_state.guards.values()))
+    exit_hop = tor_state.routers_by_hash['$' + exit_fp]
+    tqdm.write(f"Creating a circuit via {relay['nickname']} ({relay['fingerprint']})")
+    circ = await tor_state.build_circuit([first_hop, exit_hop], using_guards=False)
+    await circ.when_built()
+
+    tqdm.write(u"  path: {}".format(" -> ".join([r.ip for r in circ.path])))
+
+    config = await tor.get_config()
+    for url in url_list:
+        tqdm.write(f"* fetching {url} over {exit_fp}")
+        row = {
+            "exit_fp": exit_fp,
+            "exit_nickname": relay["nickname"],
+            "exit_cc": relay["country"],
+            "exit_asn": relay["as"],
+            "url": url,
+            "status": None,
+            "response_length": None,
+            "date": datetime.utcnow()
+        }
+        try:
+            resp = await treq.get(
+                url,
+                agent=circ.web_agent(reactor, config.socks_endpoint(reactor)),
+                timeout=10
+            )
+            data = await resp.text()
+            row['status'] = 'ok'
+            row['response_length'] = len(data)
+        except Exception as exc:
+            row['status'] = str(exc)
+
+        csvwriter.writerow(row)
+
 async def main(reactor):
     with open('exitmap-results.csv', 'w') as out_file:
         csvwriter = csv.DictWriter(out_file, fieldnames=["exit_fp", "exit_nickname", "exit_cc", "exit_asn", "url", "status", "response_length", "date"])
         csvwriter.writeheader()
+
+        # Uncomment if you would like to connect to a running tor instance
         #tor = await txtorcon.connect(
         #    reactor,
         #    UNIXClientEndpoint(reactor, "/var/run/tor/control")
         #)
-        print("Starting tor")
+
+        print("🚂 Starting tor")
         tor = await txtorcon.launch(reactor, progress_updates=lambda x,y,z: print(f"{x}%: {y} - {z}"))
-        print("Started Tor version {}".format(tor.version))
+        print("🏁 Started Tor version {}".format(tor.version))
 
         exit_list = await get_exit_list(reactor)
         state = await tor.create_state()
         for relay in tqdm(exit_list):
-            exit_fp = relay['fingerprint']
-            ns_info = await tor.protocol.get_info('ns/id/' + exit_fp)
-            md_info = await tor.protocol.get_info('md/id/' + exit_fp)
-
-            first_hop = random.choice(list(state.guards.values()))
-            exit_hop = state.routers_by_hash['$' + exit_fp]
-            tqdm.write(f"Creating a circuit via {relay['nickname']} ({relay['fingerprint']})")
-            circ = await state.build_circuit([first_hop, exit_hop], using_guards=False)
             try:
-                await circ.when_built()
-            except:
-                print(f"build failed on {exit_fp}")
-                continue
-
-            tqdm.write(u"  path: {}".format(" -> ".join([r.ip for r in circ.path])))
-
-            config = await tor.get_config()
-            for url in URL_LIST:
-                tqdm.write(f"* fetching {url} over {exit_fp}")
-                row = {
-                    "exit_fp": exit_fp,
-                    "exit_nickname": relay["nickname"],
-                    "exit_cc": relay["country"],
-                    "exit_asn": relay["as"],
-                    "url": url,
-                    "status": None,
-                    "response_length": None,
-                    "date": datetime.utcnow()
-                }
-                try:
-                    resp = await treq.get(
-                        url,
-                        agent=circ.web_agent(reactor, config.socks_endpoint(reactor)),
-                        timeout=10
-                    )
-                    data = await resp.text()
-                    row['status'] = 'ok'
-                    row['response_length'] = len(data)
-                except Exception as exc:
-                    row['status'] = str(exc)
-
-                csvwriter.writerow(row)
+                await measure_relay(reactor, tor, state, relay, URL_LIST, csvwriter)
+            except Exception as exc:
+                tqdm.write(f"FAILED to measure via {relay['fingerprint']} {exc}")
 
 @react
 def _main(reactor):
