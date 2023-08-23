@@ -79,6 +79,10 @@ async def measure_relay(reactor, tor, tor_state, relay, url_list, csvwriter):
 
         csvwriter.writerow(row)
 
+class TorLogger:
+    def write(self, msg):
+        tqdm.write(f"  {msg.strip()}")
+
 async def main(reactor):
     with open('exitmap-results.csv', 'w') as out_file:
         csvwriter = csv.DictWriter(out_file, fieldnames=["exit_fp", "exit_nickname", "exit_cc", "exit_asn", "url", "status", "response_length", "date"])
@@ -92,11 +96,16 @@ async def main(reactor):
 
         print("🚂 Starting tor")
         try:
-            tor = await txtorcon.launch(reactor, progress_updates=lambda x,y,z: print(f"{x}%: {y} - {z}"))
-            for event in ['INFO', 'NOTICE', 'WARN', 'ERR']:
-                tor.protocol.add_event_listener(event, tqdm.write)
+            tor = await txtorcon.launch(reactor,
+                                        stdout=TorLogger(),
+                                        stderr=TorLogger(),
+                                        kill_on_stderr=False,
+                                        progress_updates=lambda x,y,z: print(f"{x}%: {y} - {z}")
+            )
         except Exception as exc:
             print(f"FAILED to start tor {exc}")
+            return
+
         print("🏁 Started Tor version {}".format(tor.version))
 
         exit_list = await get_exit_list(reactor)
