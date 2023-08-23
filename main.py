@@ -80,8 +80,11 @@ async def measure_relay(reactor, tor, tor_state, relay, url_list, csvwriter):
         csvwriter.writerow(row)
 
 class TorLogger:
+    def __init__(self, prefix=""):
+        self.prefix = prefix
+
     def write(self, msg):
-        tqdm.write(f"  {msg.strip()}")
+        tqdm.write(f"{self.prefix}{msg.strip()}")
 
 async def main(reactor):
     with open('exitmap-results.csv', 'w') as out_file:
@@ -97,8 +100,8 @@ async def main(reactor):
         print("🚂 Starting tor")
         try:
             tor = await txtorcon.launch(reactor,
-                                        stdout=TorLogger(),
-                                        stderr=TorLogger(),
+                                        stdout=TorLogger("  "),
+                                        stderr=TorLogger("ERR: "),
                                         kill_on_stderr=False,
                                         progress_updates=lambda x,y,z: print(f"{x}%: {y} - {z}")
             )
