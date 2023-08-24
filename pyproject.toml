@@ -13,6 +13,9 @@ treq = "^22.2.0"
 tqdm = "^4.66.1"
 
 
+[tool.poetry.group.dev.dependencies]
+black = "^23.7.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
