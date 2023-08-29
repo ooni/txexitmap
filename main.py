@@ -23,7 +23,7 @@ URL_LIST = [
 ]
 
 
-async def get_exit_list(reactor):
+async def get_exit_list(reactor, randomize=True):
     resp = await treq.get(
         "https://onionoo.torproject.org/details?search=flag:Exit",
     )
@@ -43,6 +43,8 @@ async def get_exit_list(reactor):
                 "as": relay["as"],
             }
         )
+    if randomize:
+        random.shuffle(exit_list)
     return exit_list
 
 
