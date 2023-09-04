@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 twisted = "^22.10.0"
-txtorcon = "^23.5.0"
+txtorcon = { git = "https://github.com/meejah/txtorcon.git", branch = "389.hang-getinfo" }
 treq = "^22.2.0"
 tqdm = "^4.66.1"
 

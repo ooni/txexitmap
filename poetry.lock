@@ -693,20 +693,23 @@ description = "Twisted-based Tor controller client, with state-tracking and     
 category = "main"
 optional = false
 python-versions = ">=3.8"
-files = [
-    {file = "txtorcon-23.5.0-py3-none-any.whl", hash = "sha256:987f0a91184f98cc3f0a7eccaa42f5054063744d6ac15e325cfa666403214208"},
-    {file = "txtorcon-23.5.0.tar.gz", hash = "sha256:93fd80a9dd505f698d0864fe93db8b6a9c1144b5feb91530820b70ed8982651c"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 automat = "*"
 cryptography = "*"
-incremental = "*"
 Twisted = {version = ">=15.5.0", extras = ["tls"]}
 "zope.interface" = ">=3.6.1"
 
 [package.extras]
-dev = ["Sphinx", "codecov", "coverage (<5.0)", "coveralls", "cuvner", "geoip", "ipaddress (>=1.0.16)", "mock", "pycodestyle", "pyflakes", "readme-renderer", "repoze.sphinx.autointerface (>=0.4)", "setuptools (>=0.8.0)", "tox", "twine", "wheel"]
+dev = ["Sphinx", "codecov", "coverage (<5.0)", "coveralls", "cuvner", "geoip", "ipaddress (>=1.0.16)", "mock", "pycodestyle", "pyflakes", "readme_renderer", "repoze.sphinx.autointerface (>=0.4)", "setuptools (>=0.8.0)", "tox", "twine", "wheel"]
+
+[package.source]
+type = "git"
+url = "https://github.com/meejah/txtorcon.git"
+reference = "389.hang-getinfo"
+resolved_reference = "caf0b389e16e63dd06992f0a2234bbca6ed5ca75"
 
 [[package]]
 name = "typing-extensions"
@@ -789,4 +792,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "432ec79c8a873ee7e2ba93b588e157711ad39f21ccfb9fe9dc8bfe7953b6d5a1"
+content-hash = "39305c05732b594d05c43631f9f63f8dc57f8b34e6efb582014c037da7aa3ceb"
