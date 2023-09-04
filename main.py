@@ -8,7 +8,12 @@ import random
 from tqdm import tqdm
 
 from twisted.internet.task import react
-from twisted.internet.defer import inlineCallbacks, ensureDeferred, TimeoutError, DeferredList
+from twisted.internet.defer import (
+    inlineCallbacks,
+    ensureDeferred,
+    TimeoutError,
+    DeferredList,
+)
 from twisted.internet.endpoints import UNIXClientEndpoint
 
 import treq
@@ -138,6 +143,7 @@ class TorLauncher:
         self._state = await tor.create_state()
         self._tor = tor
 
+
 async def main(reactor):
     with open("exitmap-results.csv", "w") as out_file:
         csvwriter = csv.DictWriter(
@@ -179,6 +185,7 @@ async def main(reactor):
                 tqdm.write(f"FAILED to measure via {relay['fingerprint']} {exc}")
 
         tor_launcher.close()
+
 
 @react
 def _main(reactor):
