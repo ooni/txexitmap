@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 import csv
 from datetime import datetime
@@ -8,13 +7,7 @@ import random
 from tqdm import tqdm
 
 from twisted.internet.task import react
-from twisted.internet.defer import (
-    inlineCallbacks,
-    ensureDeferred,
-    TimeoutError,
-    DeferredList,
-)
-from twisted.internet.endpoints import UNIXClientEndpoint
+from twisted.internet.defer import ensureDeferred
 
 import treq
 import txtorcon
@@ -37,7 +30,7 @@ async def get_exit_list(reactor, randomize=True):
     exit_list = []
     for relay in j["relays"]:
         # XXX ignore relays whos exit policy is incompatible with our target
-        if relay["running"] != True:
+        if relay["running"] is not True:
             continue
 
         exit_list.append(
