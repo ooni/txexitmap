@@ -8,9 +8,12 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 twisted = "^22.10.0"
-txtorcon = { git = "https://github.com/meejah/txtorcon.git", branch = "389.hang-getinfo" }
+txtorcon = { git = "https://github.com/meejah/txtorcon.git", branch = "main" }
 treq = "^22.2.0"
 tqdm = "^4.66.1"
+clickhouse-driver = "^0.2.5"
+statsd = "^4.0.1"
+systemd = "^235-1"
 
 
 [tool.poetry.group.dev.dependencies]
